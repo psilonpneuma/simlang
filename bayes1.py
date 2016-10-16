@@ -33,9 +33,6 @@ from math import log, log1p, exp
 from numpy import nan
 
 # ----- functions for dealing with log probabilities -----
-learning = "map"
-production = "softmax"
-r = 0.5
 
 def log_subtract(x,y):
     '''
@@ -274,40 +271,63 @@ import matplotlib.pyplot as plt
 # ----- values for all the learners at that generation
 
 import numpy as np
-nruns = 1000 #do *a lot* of runs
-generation_to_plot = 50 #plot the distribution at generation n
+# nruns = 1000 #do *a lot* of runs
+# generation_to_plot = 50 #plot the distribution at generation n
  
-#do a bunch of runs and collate the data
-simulation_data = []
-for i in range(nruns):
-    print '.',
-    theta_values,_data = iterate(1,10,5,50)
-    simulation_data.append(theta_values)
- 
-#OK, so now we have some data, we can plot the distribution of theta values 
-#across all our runs at a given generation
- 
-#dig out the correct generation from each run
-this_g_data = []
-for run in simulation_data:
-    this_g_data.append(run[generation_to_plot])
- 
-#now we have a long list of theta values - we want a histogram, showing how 
-#many times we get each of the possible values. np_histogram does that for us
-counts,_=np.histogram(this_g_data,bins=[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1])
-freqs = [x/(nruns+0.) for x in counts]
- 
-#now we can plot the data as before
-plt.figure()
-plt.bar(possible_pW1,freqs,align='center',width=0.1,color='b')
-plt.xticks(possible_pW1,fontsize=18)
-plt.yticks([0,0.1,0.2,0.3,0.4],fontsize=18)
-plt.xlabel(r'$\theta$',fontsize=30)
-plt.ylabel('Proportion of learners',fontsize=30)
-plt.subplots_adjust(left=0.15)
-plt.subplots_adjust(bottom=0.15)
-plt.title("Uniform prior, generation "+str(generation_to_plot))
-plt.ylim(0,0.4)
-#plt.savefig("/Users/kennysmith/Documents/teaching/SimulatingLanguage/sl_1415/LectureSlides/LectureImages/iterate_u_"+str(g)+".png")
-plt.show()
+# #do a bunch of runs and collate the data
+# simulation_data = []
+# for i in range(nruns):
+#     print '.',
+#     theta_values,_data = iterate(1,10,5,50)
+#     simulation_data.append(theta_values)
+priors = [1,0.5,2]
+learns = ["map","sample"]
+prods = ["map","sample","softmax"]
+gens = [10,50,100]
+nruns = 100
+r=10
+
+for a in priors:
+    for l in learns:
+        for p in prods:
+            for g in gens:
+                    generation_to_plot = g #plot the distribution at generation n
+                    learning = l
+                    production = p
+                #do a bunch of runs and collate the data
+                    simulation_data = []
+                    for i in range(nruns):
+                        print '.',
+                        theta_values,_data = iterate(a,10,5,g)
+                        simulation_data.append(theta_values)
+    #OK, so now we have some data, we can plot the distribution of theta values 
+    #across all our runs at a given generation
+     
+    #dig out the correct generation from each run
+                    this_g_data = []
+                    for run in simulation_data:
+                        this_g_data.append(run[generation_to_plot])
+                     
+                    #now we have a long list of theta values - we want a histogram, showing how 
+                    #many times we get each of the possible values. np_histogram does that for us
+                    counts,_=np.histogram(this_g_data,bins=[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1])
+                    freqs = [x/(nruns+0.) for x in counts]
+                    
+                    title = "prior "+str(a)+"generation "+str(generation_to_plot)+" learn= "+str(l)+" prod= "+str(p)+str(i)+" iterations"
+                    #now we can plot the data as before
+                    plt.figure()
+                    plt.bar(possible_pW1,freqs,align='center',width=0.1,color='b')
+                    plt.xticks(possible_pW1,fontsize=18)
+                    plt.yticks([0,0.1,0.2,0.3,0.4],fontsize=18)
+                    plt.xlabel(r'$\theta$',fontsize=30)
+                    plt.ylabel('Proportion of learners',fontsize=30)
+                    plt.subplots_adjust(left=0.15)
+                    plt.subplots_adjust(bottom=0.15)
+                    plt.title(title)
+                    plt.ylim(0,0.4)
+                    if l == "map":
+                        plt.savefig("/Users/chiarasemenzin/Desktop/Dissertation/graphs/combinations/map/iterate"+title+".png")
+                    elif l == "sample":
+                        plt.savefig("/Users/chiarasemenzin/Desktop/Dissertation/graphs/combinations/sample/iterate"+title+".png")
+                    plt.show()
 
