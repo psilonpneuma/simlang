@@ -23,7 +23,7 @@ consists of 5 examples of word 1 (and therefore 5 of word 0). It returns two
 values: a generation-by-generation record of the inferred values of pW1, and 
 the data produced at each generation (specified as a number of occurences of word 1).
 """
-
+# CHANGE!
 import random as rnd
 #we need a few extra functions from various libraries, for doing stuff 
 #with log probabilities and probablity distributions
@@ -33,8 +33,9 @@ from math import log, log1p, exp
 from numpy import nan
 
 # ----- functions for dealing with log probabilities -----
-learning = "sample"
-production = "map"
+learning = "map"
+production = "softmax"
+r = 0.5
 
 def log_subtract(x,y):
     '''
@@ -179,7 +180,7 @@ def learn(data,prior):
     posterior_logprobs = posterior(data,prior)
     return posterior_logprobs
     
-def produce(posterior_logprobs, n_productions):
+def produce(posterior_logprobs, n_productions,r=None):
     '''
     Returns data, a list of 0s and 1s (representing w0 and w1)
     '''    
@@ -193,22 +194,28 @@ def produce(posterior_logprobs, n_productions):
             logpW1=possible_logpW1[selected_index] #logpW1
         elif learning == 'map':
             selected_index = wta(posterior_logprobs)
-            logpW1=possible_logpW1[selected_index] 
+            logpW1=possible_logpW1[selected_index]
                 
     # PRODUCTION FROM HYPOTHESIS
         logpW0 = log_subtract(log(1),logpW1)
         # add here softmax?
         logprobs = [logpW0,logpW1]
         if production == "sample":
-                data.append(log_roulette_wheel(logprobs))
+            data.append(log_roulette_wheel(logprobs))
         elif production == "map":
             if logpW1 >= log(0.5):
                 data.append(0)
             else:
                 data.append(1)
+        elif production == "softmax":
+            logpW1=(r*logpW1)-logsumexp([r*logpW1, r*logpW0])
+            logpW0 = log_subtract(log(1),logpW1)
+            logprobs = [logpW0,logpW1]
+            data.append(log_roulette_wheel(logprobs))
+
     
-    return logpW1,data
-    #hypotheses
+    return logpW1, data
+    #return hypotheses
         
 
 # ----- iterated learning -----
@@ -229,7 +236,7 @@ def iterate(alpha,n_productions,starting_count_w1,generations):
     data=[1]*starting_count_w1 + [0]*(n_productions-starting_count_w1)
     for generation in range(1,generations+1):
         distr = learn(data,prior)
-        logpW1,data = produce(distr,n_productions)
+        logpW1,data = produce(distr,n_productions,r)
         pW1_accumulator.append(exp(logpW1))
         data_accumulator.append(sum(data))
     return pW1_accumulator,data_accumulator
@@ -267,7 +274,7 @@ import matplotlib.pyplot as plt
 # ----- values for all the learners at that generation
 
 import numpy as np
-nruns = 100 #do *a lot* of runs
+nruns = 1000 #do *a lot* of runs
 generation_to_plot = 50 #plot the distribution at generation n
  
 #do a bunch of runs and collate the data
