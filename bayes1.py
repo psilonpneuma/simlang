@@ -284,7 +284,7 @@ priors = [1,0.5,2]
 learns = ["map","sample"]
 prods = ["map","sample","softmax"]
 gens = [10,50,100]
-nruns = 100
+nruns = 10000
 r=10
 
 for a in priors:
