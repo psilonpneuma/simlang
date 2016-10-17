@@ -326,8 +326,8 @@ for a in priors:
                     plt.title(title)
                     plt.ylim(0,0.4)
                     if l == "map":
-                        plt.savefig("/Users/chiarasemenzin/Desktop/Dissertation/graphs/combinations/map/iterate"+title+".png")
+                        plt.savefig("/Documents/graphs/map/iterate"+title+".png")
                     elif l == "sample":
-                        plt.savefig("/Users/chiarasemenzin/Desktop/Dissertation/graphs/combinations/sample/iterate"+title+".png")
-                    plt.show()
+                        plt.savefig("/Documents/graphs/sample/iterate"+title+".png")
+                    #plt.show()
 
