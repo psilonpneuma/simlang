@@ -331,3 +331,5 @@ for a in priors:
                         plt.savefig("/Documents/graphs/sample/iterate"+title+".png")
                     #plt.show()
 
+
+
